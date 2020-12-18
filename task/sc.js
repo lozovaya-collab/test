@@ -1,36 +1,44 @@
 const array1 = [] // массив самих стран
 const arrayList = [] // массив обьектов с информациях о странах
-let sortPropertyCases = "TotalCases"
+// дефолтные свойства, по которым изначально все сортируется
+let sortPropertyCases = "TotalCases" 
 let sortPropertyDeathes = "Deathes"
 let sortPropertyRecovered = "Recovered"
 
+// глобальные данные для мира
 const globalCases = document.querySelector('.cases')
 const globalDeathes = document.querySelector('.deathes')
 const globalRecovered = document.querySelector('.recovered')
 
+// каждый список с общими случаями, смертями и выздоравлениями
 const listCases = document.querySelector('.list_of_countries_cases')
 const listDeathes = document.querySelector('.list_of_countries_deathes')
 const listRecovereds = document.querySelector('.list_of_countries_recovered')
 
+// заголовки, содержащие информацию, которая отражена в списке
 const headlineCases = document.querySelector('.headline_cases')
 const headlineDeathes = document.querySelector('.headline_deathes')
 const headlineRecovereds = document.querySelector('.headline_recovered')
 
+// кнопки перелистывания право
 const nextButtonCases = document.querySelector('.right-button-cases')
 const nextButtonDeathes = document.querySelector('.right-button-deathes')
 const nextButtonRecovered = document.querySelector('.right-button-recovered')
 
+// кнопки перелистывания влево
 const prevButtonCases = document.querySelector('.left-button-cases')
 const prevButtonDeathes = document.querySelector('.left-button-deathes')
 const prevButtonRecovered = document.querySelector('.left-button-recovered')
 
-
+// свойства, по которым сортируются общие случаи
 const propsCases = [
     "TotalCases",
     "TodayCases",
     "TodayCasesPer100th",
     "TotalCasesPer100th"
 ]
+
+// свойства, по которым сортируются выздоровленные
 const propsRecovered = [
     "Recovered",
     "TodayRecovered",
@@ -38,6 +46,7 @@ const propsRecovered = [
     "RecoveredPer100th"
 ]
 
+// свойства, по которым сортируются смерти
 const propsDeathes = [
     "Deathes",
     "DeathesPer100th",
@@ -45,7 +54,7 @@ const propsDeathes = [
     "TodayDeathesPer100th"
 ]
 
-
+// функция получения информации о стране по API
 async function getListCountries(array) {
 
     for (let i = 0; i < array.length; i++) {
@@ -74,6 +83,7 @@ async function getListCountries(array) {
         }
     }
 
+    // создаем те самые списки стран 
     createList(arrayList, sortPropertyCases, listCases, headlineCases)
     createList(arrayList, sortPropertyDeathes, listDeathes, headlineDeathes)
     createList(arrayList, sortPropertyRecovered, listRecovereds, headlineRecovereds)
@@ -98,11 +108,8 @@ async function getListCountries(array) {
         sortPropertyRecovered = prevList(sortPropertyRecovered, propsRecovered, arrayList, listRecovereds, headlineRecovereds)
     })
 
-
-
-
 }
-
+// высчитывание индекса, свойства которое должно вывести следующим
 function nextList(prop, arrayProps, array, element, headline) {
     let index = arrayProps.indexOf(prop)
     if (index == arrayProps.length - 1) {
@@ -115,7 +122,7 @@ function nextList(prop, arrayProps, array, element, headline) {
 
     return arrayProps[index]
 }
-
+// высчитывание индекса, свойства которое было до этого 
 function prevList(prop, arrayProps, array, element, headline) {
     let index = arrayProps.indexOf(prop)
     if (index === 0) {
@@ -128,6 +135,8 @@ function prevList(prop, arrayProps, array, element, headline) {
 
     return arrayProps[index]
 }
+
+// получения списка 101 страны из API
 async function getAllCountries(array) {
     const resu = await fetch(`https://corona.lmao.ninja/v2/countries/`);
     const data = await resu.json();
@@ -140,6 +149,7 @@ async function getAllCountries(array) {
     getListCountries(array)
 }
 
+// получение из API и вывод глобльных данных 
 async function getGlobalValues() {
     const resu = await fetch(`https://corona.lmao.ninja/v2/all?yesterday`);
     const data = await resu.json();
@@ -147,10 +157,12 @@ async function getGlobalValues() {
     globalDeathes.innerHTML = data.deaths
     globalRecovered.innerHTML = data.recovered
 }
-
+// получаем список стран
 getAllCountries(array1)
+// получаем глобальные переменные
 getGlobalValues()
 
+// создаем список стран
 function createList(array, prop, element, headline) {
     headline.innerHTML = prop
     element.innerHTML = ''
