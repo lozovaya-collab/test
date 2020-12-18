@@ -1,22 +1,51 @@
 const array1 = [] // массив самих стран
 const arrayList = [] // массив обьектов с информациях о странах
-let sortProperty = "TotalCases"
+let sortPropertyCases = "TotalCases"
+let sortPropertyDeathes = "Deathes"
+let sortPropertyRecovered = "Recovered"
 
-const props = [
+const globalCases = document.querySelector('.cases')
+const globalDeathes = document.querySelector('.deathes')
+const globalRecovered = document.querySelector('.recovered')
+
+const listCases = document.querySelector('.list_of_countries_cases')
+const listDeathes = document.querySelector('.list_of_countries_deathes')
+const listRecovereds = document.querySelector('.list_of_countries_recovered')
+
+const headlineCases = document.querySelector('.headline_cases')
+const headlineDeathes = document.querySelector('.headline_deathes')
+const headlineRecovereds = document.querySelector('.headline_recovered')
+
+const nextButtonCases = document.querySelector('.right-button-cases')
+const nextButtonDeathes = document.querySelector('.right-button-deathes')
+const nextButtonRecovered = document.querySelector('.right-button-recovered')
+
+const prevButtonCases = document.querySelector('.left-button-cases')
+const prevButtonDeathes = document.querySelector('.left-button-deathes')
+const prevButtonRecovered = document.querySelector('.left-button-recovered')
+
+
+const propsCases = [
     "TotalCases",
-    "Deathes",
-    "Recovered",
     "TodayCases",
-    "TodayDeathes",
-    "TodayRecovered",
-    "TotalCasesPer100th",
-    "RecoveredPer100th",
-    "DeathesPer100th",
     "TodayCasesPer100th",
-    "TodayDeathesPer100th",
-    "TodayRecoveredPer100th"
-
+    "TotalCasesPer100th"
 ]
+const propsRecovered = [
+    "Recovered",
+    "TodayRecovered",
+    "TodayRecoveredPer100th",
+    "RecoveredPer100th"
+]
+
+const propsDeathes = [
+    "Deathes",
+    "DeathesPer100th",
+    "TodayDeathes",
+    "TodayDeathesPer100th"
+]
+
+
 async function getListCountries(array) {
 
     for (let i = 0; i < array.length; i++) {
@@ -45,43 +74,63 @@ async function getListCountries(array) {
         }
     }
 
-    createList(arrayList, sortProperty)
-    document.querySelector('.right-button').addEventListener('click', () => {
-        console.log('right')
-        let index_right = props.indexOf(sortProperty)
-        console.log('dddd', index_right)
+    createList(arrayList, sortPropertyCases, listCases, headlineCases)
+    createList(arrayList, sortPropertyDeathes, listDeathes, headlineDeathes)
+    createList(arrayList, sortPropertyRecovered, listRecovereds, headlineRecovereds)
 
-        if (index_right == props.length - 1) {
-            index_right = 0
-        } else {
-            index_right = index_right + 1
-        }
-        console.log(index_right)
-        sortProperty = props[index_right]
-        console.log(sortProperty)
-        createList(arrayList, sortProperty)
+    nextButtonCases.addEventListener('click', () => {
+        sortPropertyCases = nextList(sortPropertyCases, propsCases, arrayList, listCases, headlineCases)
     })
-    document.querySelector('.left-button').addEventListener('click', () => {
-        console.log('left')
-        let index = props.indexOf(sortProperty)
-        if (index === 0) {
-            index = props.length - 1
-        } else {
-            index -= 1
-        }
+    nextButtonDeathes.addEventListener('click', () => {
+        sortPropertyDeathes = nextList(sortPropertyDeathes, propsDeathes, arrayList, listDeathes, headlineDeathes)
+    })
+    nextButtonRecovered.addEventListener('click', () => {
+        sortPropertyRecovered = nextList(sortPropertyRecovered, propsRecovered, arrayList, listRecovereds, headlineRecovereds)
+    })
 
-        sortProperty = props[index]
-        createList(arrayList, sortProperty)
+    prevButtonCases.addEventListener('click', () => {
+        sortPropertyCases = prevList(sortPropertyCases, propsCases, arrayList, listCases, headlineCases)
     })
+    prevButtonDeathes.addEventListener('click', () => {
+        sortPropertyDeathes = prevList(sortPropertyDeathes, propsDeathes, arrayList, listDeathes, headlineDeathes)
+    })
+    prevButtonRecovered.addEventListener('click', () => {
+        sortPropertyRecovered = prevList(sortPropertyRecovered, propsRecovered, arrayList, listRecovereds, headlineRecovereds)
+    })
+
 
 
 
 }
 
+function nextList(prop, arrayProps, array, element, headline) {
+    let index = arrayProps.indexOf(prop)
+    if (index == arrayProps.length - 1) {
+        index = 0
+    } else {
+        index = index + 1
+    }
+
+    createList(array, arrayProps[index], element, headline)
+
+    return arrayProps[index]
+}
+
+function prevList(prop, arrayProps, array, element, headline) {
+    let index = arrayProps.indexOf(prop)
+    if (index === 0) {
+        index = arrayProps.length - 1
+    } else {
+        index -= 1
+    }
+
+    createList(array, arrayProps[index], element, headline)
+
+    return arrayProps[index]
+}
 async function getAllCountries(array) {
     const resu = await fetch(`https://corona.lmao.ninja/v2/countries/`);
     const data = await resu.json();
-    console.log(data)
     data.sort((prev, next) => next.cases - prev.cases)
     for (let i = 0; i <= 100; i++) {
         array.push(data[i].country)
@@ -91,15 +140,21 @@ async function getAllCountries(array) {
     getListCountries(array)
 }
 
+async function getGlobalValues() {
+    const resu = await fetch(`https://corona.lmao.ninja/v2/all?yesterday`);
+    const data = await resu.json();
+    globalCases.innerHTML = data.cases
+    globalDeathes.innerHTML = data.deaths
+    globalRecovered.innerHTML = data.recovered
+}
+
 getAllCountries(array1)
+getGlobalValues()
 
-function createList(array, prop) {
-    document.querySelector('.headline').innerHTML = prop
-    const listCountries = document.querySelector('.list_of_countries')
-    listCountries.innerHTML = ''
+function createList(array, prop, element, headline) {
+    headline.innerHTML = prop
+    element.innerHTML = ''
     let sortArray = array.sort((prev, next) => next[prop] - prev[prop])
-
-
     const list = document.createElement('ol')
     for (let i = 0; i < sortArray.length; i++) {
         const li = document.createElement('li')
@@ -109,6 +164,6 @@ function createList(array, prop) {
         list.append(li)
     }
 
-    listCountries.append(list)
+    element.append(list)
 
 }
